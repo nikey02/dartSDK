@@ -36,9 +36,7 @@ jobs:
         python-version: '2.x'
     - name: Prepare
       run: |
-        sudo apt-get update
-        sudo apt-get install g++-aarch64-linux-gnu g++-arm-linux-gnueabihf
-        sudo apt-get install g++-multilib
+        sudo apt-get update 
         sudo apt-get install zip tree
     - name: Get Resource
       run: |
@@ -52,5 +50,6 @@ jobs:
         ls
         sed -i "s#/data/local/tmp#/data/data/com.termux/files/home/tmp#g" runtime/bin/directory_android.cc
         sed -n '431,433p' runtime/bin/directory_android.cc
-        tree . 
+        tree third_party/
+        find -name "pana" third_party/
 
