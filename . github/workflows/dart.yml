@@ -1,0 +1,107 @@
+name: Main
+
+# Controls when the action will run. 
+
+on:
+
+  # Triggers the workflow on push or pull request events but only for the main branch
+
+  push:
+
+    branches: [ main ]
+
+  pull_request:
+
+    branches: [ main ]
+
+  schedule:
+
+    - cron: 00 16 * * *
+
+  watch:
+
+    types: [started]
+
+  # Allows you to run this workflow manually from the Actions tab
+
+  workflow_dispatch:
+
+jobs:
+
+  build-dart-sdk:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Maximize build space
+
+      uses: easimon/maximize-build-space@v4
+
+      with:
+
+          root-reserve-mb: 512   
+
+          swap-size-mb: 1024
+
+          remove-dotnet: 'true'
+
+          remove-haskell: 'true'
+
+          remove-android: 'true'
+
+    - name: Checkout
+
+      uses: actions/checkout@v2
+
+    - name: Echo Free space
+
+      run: |
+
+          echo "Free space:"
+
+          df -h
+
+    - name: Set up Python 2.x
+
+      uses: actions/setup-python@v2
+
+      with:
+
+        python-version: '2.x'
+
+    - name: Prepare
+
+      run: |
+
+        sudo apt-get update
+
+        sudo apt-get install g++-aarch64-linux-gnu g++-arm-linux-gnueabihf
+
+        sudo apt-get install g++-multilib
+
+        sudo apt-get install zip
+
+    - name: Get Resource
+
+      run: |
+
+        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+
+        export PATH="$PATH:$PWD/depot_tools"
+
+        mkdir dart-sdk
+
+        cd dart-sdk
+
+        fetch dart
+
+        cd sdk
+
+        git checkout master
+
+        ls
+
+        sed -i "s#/data/local/tmp#/data/data/com.termux/files/home/tmp#g" runtime/bin/directory_android.cc
+
+        sed -n '431,433p' runtime/bin/directory_android.cc
