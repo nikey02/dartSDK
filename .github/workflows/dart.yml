@@ -52,11 +52,11 @@ jobs:
         ls
         sed -i "s#/data/local/tmp#/data/data/com.termux/files/home/tmp#g" runtime/bin/directory_android.cc
         sed -n '431,433p' runtime/bin/directory_android.cc
-        sed -i "s#/bin/tar#/data/data/com.termux/files/usr/bin/tar#g" third_party/pkg/pub/lib/src/io.dart
-        sed -n '778,801p' third_party/pkg/pub/lib/src/io.dart
-        cd ../
+          cd ../
         echo "target_os = ['android','linux']" >> .gclient
         gclient sync
+        sed -i "s#/bin/tar#/data/data/com.termux/files/usr/bin/tar#g" sdk/third_party/pkg/pub/lib/src/io.dart
+        sed -n '778,801p' sdk/third_party/pkg/pub/lib/src/io.dart
     - name: Build SDK
       run: |
         export PATH="$PATH:$PWD/depot_tools"
