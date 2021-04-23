@@ -36,8 +36,10 @@ jobs:
         python-version: '2.x'
     - name: Prepare
       run: |
-        sudo apt-get update 
-        sudo apt-get install zip tree
+        sudo apt-get update
+        sudo apt-get install g++-aarch64-linux-gnu g++-arm-linux-gnueabihf
+        sudo apt-get install g++-multilib
+        sudo apt-get install zip
     - name: Get Resource
       run: |
         git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
@@ -50,6 +52,34 @@ jobs:
         ls
         sed -i "s#/data/local/tmp#/data/data/com.termux/files/home/tmp#g" runtime/bin/directory_android.cc
         sed -n '431,433p' runtime/bin/directory_android.cc
-        cat third_party/pkg/pub/lib/src/io.dart
-
-
+        sed -i "s#/bin/tar#/data/data/com.termux/files/usr/bin/tar#g" third_party/pkg/pub/lib/src/io.dart
+        sed -n '778,801p' third_party/pkg/pub/lib/src/io.dart
+        cd ../
+        echo "target_os = ['android','linux']" >> .gclient
+        gclient sync
+    - name: Build SDK
+      run: |
+        export PATH="$PATH:$PWD/depot_tools"
+        cd dart-sdk/sdk
+        ls tools/bots
+        ./tools/build.py --no-goma -m release --arch=arm64 --os=android create_sdk
+    - name: Zip SDK
+      run: |
+        cd dart-sdk/sdk/out
+        ls
+        zip -q -r dart-sdk-android-arm64.zip ReleaseAndroidARM64/dart-sdk
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+    - name: Test with environment variables
+      run: echo $TAG_NAME - $RELEASE_TIME
+      env:
+          TAG_NAME: Dart-SDK
+          RELEASE_TIME: ${{ steps.date.outputs.date }}
+    - name: Release SDK
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "dart-sdk/sdk/out/*.zip"
+        tag: Dart-SDK-${{ steps.date.outputs.date }}
+        token: ${{ secrets.RELEASE_TOKEN }}
+        allowUpdates: true
