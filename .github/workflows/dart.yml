@@ -50,6 +50,6 @@ jobs:
         ls
         sed -i "s#/data/local/tmp#/data/data/com.termux/files/home/tmp#g" runtime/bin/directory_android.cc
         sed -n '431,433p' runtime/bin/directory_android.cc
-        tree third_party/
-        find -name "pana" third_party/
+        cat third_party/pkg/pub/lib/src/io.dart
+
 
